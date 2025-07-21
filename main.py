@@ -1,8 +1,4 @@
-<<<<<<< HEAD
-from fastapi import FastAPI, Response, status
-=======
 from fastapi import FastAPI, Response, status, HTTPException
->>>>>>> feature/delete-posts
 from fastapi.params import Body
 from pydantic import BaseModel
 from typing import Optional
@@ -22,8 +18,6 @@ def find_post(id):
     for p in my_posts:
         if p["id"] == id:
             return p
-<<<<<<< HEAD
-=======
 
 def find_index_post(id):
     for i, p in enumerate(my_posts):
@@ -32,7 +26,6 @@ def find_index_post(id):
     return None
         
     
->>>>>>> feature/delete-posts
     
 @app.get("/")
 async def root():
@@ -53,10 +46,6 @@ async def create_post(post: Post):
 async def get_post(id: int, response: Response):
     post = find_post(id)
     if not post:
-<<<<<<< HEAD
-        response.status_code = status.HTTP_404_NOT_FOUND
-    return {"post detail": post}
-=======
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"post with id: {id} was not found ")
         # response.status_code = status.HTTP_404_NOT_FOUND
         # return {'message' : f"post with id: {id} was not found "}
@@ -73,5 +62,4 @@ async def delete_post(id: int):
     return Response(status_code=status.HTTP_204_NO_CONTENT)
     
 
->>>>>>> feature/delete-posts
     
