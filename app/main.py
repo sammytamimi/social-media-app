@@ -3,6 +3,12 @@ from fastapi.params import Body
 from pydantic import BaseModel
 from typing import Optional
 from random import randrange
+import psycopg
+from psycopg.rows import dict_row
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = FastAPI()
 
@@ -12,6 +18,16 @@ class Post(BaseModel):
     published: bool = True
     rating: Optional[int] = None
     
+
+try:
+    conn = psycopg.connect(host='localhost', dbname=os.getenv('DB_name'), user=os.getenv('DB_user'), password=os.getenv('DB_password'), row_factory=dict_row)
+    cursor = conn.cursor()
+    print("Database connection was succesful")
+except Exception as error:
+    print("Connecting to data failed")
+    print("Error:", error)
+    
+
 my_posts = [{"title": "title of post 1", "content": "content of post 1", "id": 1}, {"title": "favourite foods", "content": "i like pizza", "id": 2}]
 
 def find_post(id):
@@ -25,8 +41,6 @@ def find_index_post(id):
             return i
     return None
         
-    
-    
 @app.get("/")
 async def root():
     return {"message": "Welcome to my API"}
