@@ -7,6 +7,7 @@ import psycopg
 from psycopg.rows import dict_row
 import os
 from dotenv import load_dotenv
+import time
 
 load_dotenv()
 
@@ -18,14 +19,17 @@ class Post(BaseModel):
     published: bool = True
     rating: Optional[int] = None
     
-
-try:
-    conn = psycopg.connect(host='localhost', dbname=os.getenv('DB_name'), user=os.getenv('DB_user'), password=os.getenv('DB_password'), row_factory=dict_row)
-    cursor = conn.cursor()
-    print("Database connection was succesful")
-except Exception as error:
-    print("Connecting to data failed")
-    print("Error:", error)
+while True:
+    
+    try:
+        conn = psycopg.connect(host='localhost', dbname=os.getenv('DB_name'), user=os.getenv('DB_user'), password=os.getenv('DB_password'), row_factory=dict_row)
+        cursor = conn.cursor()
+        print("Connected to database successfully.")
+        break
+    except Exception as error:
+        print("Connecting to database failed")
+        print("Error:", error)
+        time.sleep(2) # wait 2 seconds before trying again if database fails to connect
     
 
 my_posts = [{"title": "title of post 1", "content": "content of post 1", "id": 1}, {"title": "favourite foods", "content": "i like pizza", "id": 2}]
@@ -47,6 +51,9 @@ async def root():
 
 @app.get("/posts")
 async def get_posts():
+    cursor.execute("""SELECT * FROM posts""")
+    posts = cursor.fetchall()
+    print(posts)
     return {"data": my_posts}
 
 @app.post("/posts", status_code=status.HTTP_201_CREATED) # change default status code to 201 from 200 to show post was created
