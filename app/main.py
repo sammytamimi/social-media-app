@@ -17,7 +17,6 @@ class Post(BaseModel):
     title: str
     content: str
     published: bool = True
-    rating: Optional[int] = None
     
 while True:
     
@@ -57,10 +56,11 @@ async def get_posts():
 
 @app.post("/posts", status_code=status.HTTP_201_CREATED) # change default status code to 201 from 200 to show post was created
 async def create_post(post: Post):
-    post_dict = post.model_dump()
-    post_dict['id'] = randrange(0, 100000)
-    my_posts.append(post_dict)
-    return {"data": post_dict}
+    cursor.execute("""INSERT INTO posts (title, content, published) VALUES (%s, %s, %s) RETURNING * """,
+                (post.title, post.content, post.published)) # santises input to prevent SQL injection. the '%s' variables are placeholer variables
+    new_post = cursor.fetchone()
+    conn.commit()  # without this commit method, the database isnt actully updated with the new post. its like git, the post is first staged and then you need to commit it
+    return {"data": new_post}
 
 @app.get("/posts/{id}") # path parameter for post
 async def get_post(id: int, response: Response):
