@@ -53,8 +53,7 @@ async def root():
 async def get_posts():
     cursor.execute("""SELECT * FROM posts""")
     posts = cursor.fetchall()
-    print(posts)
-    return {"data": my_posts}
+    return {"data": posts}
 
 @app.post("/posts", status_code=status.HTTP_201_CREATED) # change default status code to 201 from 200 to show post was created
 async def create_post(post: Post):
